@@ -1,0 +1,103 @@
+# IRIS FLOWER CLASSIFICATION
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Load the Iris dataset
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize features (optional but can be beneficial for some algorithms)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Create and train a Logistic Regression model
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+confusion_mat = confusion_matrix(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print(f'Accuracy: {accuracy}')
+print(f'Confusion Matrix:\n{confusion_mat}')
+print(f'Classification Report:\n{classification_rep}')
+
+
+from sklearn.svm import SVC
+
+# Create and train an SVM model
+svm_model = SVC(kernel='linear', C=1)
+svm_model.fit(X_train, y_train)
+
+# Make predictions
+y_pred_svm = svm_model.predict(X_test)
+
+# Evaluate the SVM model
+accuracy_svm = accuracy_score(y_test, y_pred_svm)
+print(f'SVM Accuracy: {accuracy_svm}')
+from sklearn.neighbors import KNeighborsClassifier
+
+# Create and train a KNN model
+knn_model = KNeighborsClassifier(n_neighbors=3)
+knn_model.fit(X_train, y_train)
+
+# Make predictions
+y_pred_knn = knn_model.predict(X_test)
+
+# Evaluate the KNN model
+accuracy_knn = accuracy_score(y_test, y_pred_knn)
+print(f'KNN Accuracy: {accuracy_knn}')
+import tensorflow as tf
+from tensorflow import keras
+
+# Create a neural network model
+model_nn = keras.Sequential([
+    keras.layers.Dense(64, activation='relu', input_shape=(4,)),
+    keras.layers.Dense(32, activation='relu'),
+    keras.layers.Dense(3, activation='softmax')  # 3 output classes
+])
+
+# Compile the model
+model_nn.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Train the neural network
+model_nn.fit(X_train, y_train, epochs=100, batch_size=8, verbose=0)
+
+# Evaluate the neural network model
+_, accuracy_nn = model_nn.evaluate(X_test, y_test)
+print(f'Neural Network Accuracy: {accuracy_nn}')
+from sklearn.model_selection import GridSearchCV
+
+# Define hyperparameters to search
+param_grid = {'C': [0.1, 1, 10],
+              'kernel': ['linear', 'rbf', 'poly']}
+
+# Create an SVM model
+svm_model = SVC()
+
+# Perform grid search with cross-validation
+grid_search = GridSearchCV(svm_model, param_grid, cv=5)
+grid_search.fit(X_train, y_train)
+
+# Get the best hyperparameters
+best_params = grid_search.best_params_
+best_svm_model = grid_search.best_estimator_
+
+# Evaluate the best SVM model
+y_pred_best_svm = best_svm_model.predict(X_test)
+accuracy_best_svm = accuracy_score(y_test, y_pred_best_svm)
+
+print(f'Best SVM Hyperparameters: {best_params}')
+print(f'Best SVM Accuracy: {accuracy_best_svm}')
