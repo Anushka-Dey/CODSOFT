@@ -1,0 +1,194 @@
+import pandas as pd
+data = pd.read_csv("creditcard.csv")
+print(data.info())
+print(data["Class"].value_counts())
+ from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+data['Amount'] = scaler.fit_transform(data['Amount'].values.reshape(-1, 1))
+from sklearn.model_selection import train_test_split
+
+X = data.drop('Class', axis=1)
+y = data['Class']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+import numpy as np
+# Find indices of missing target values
+missing_target_indices = np.isnan(y_train)
+
+# Remove rows with missing target values from X_train and y_train
+X_train = X_train[~missing_target_indices]
+y_train = y_train[~missing_target_indices]
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+
+model = LogisticRegression()
+# model = RandomForestClassifier()
+model.fit(X_train, y_train)
+from sklearn.impute import SimpleImputer
+
+# Create an imputer that replaces missing values with the mean of the column
+imputer = SimpleImputer(strategy='mean')
+
+# Apply the imputer to your data
+X_train = imputer.fit_transform(X_train)
+X_test = imputer.transform(X_test)
+import numpy as np
+
+# Remove rows with missing values in X_train
+mask = ~np.isnan(X_train).any(axis=1)
+X_train = X_train[mask]
+y_train = y_train[mask]
+
+# Remove rows with missing values in X_test
+mask = ~np.isnan(X_test).any(axis=1)
+X_test = X_test[mask]
+y_test = y_test[mask]
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+y_pred = model.predict(X_test)
+import numpy as np
+
+# Remove rows with missing values in X_test
+nan_indices = np.argwhere(np.isnan(X_test)).flatten()
+X_test = np.delete(X_test, nan_indices, axis=0)
+
+# Remove corresponding rows from y_test
+y_test = np.delete(y_test, nan_indices)
+X_test
+y_test
+y_train
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+# Load your dataset
+# Replace 'your_dataset.csv' with the actual path to your dataset
+data = pd.read_csv("creditcard.csv")
+
+# Separate features (X) and target labels (y)
+X = data.drop(columns=['Class'])  # Assuming 'Class' is the target column
+y = data['Class']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Handle missing values (NaN) in the dataset
+X_train.dropna(inplace=True)
+X_test.dropna(inplace=True)
+y_train = y_train[X_train.index]
+
+# Train a logistic regression model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import NearMiss
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score, auc
+# Make predictions on the test data
+y_pred = model.predict(X_test)
+
+# Calculate evaluation metrics
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+confusion = confusion_matrix(y_test, y_pred)
+
+# Print evaluation metrics and confusion matrix
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1 Score:", f1)
+print("Confusion Matrix:")
+print(confusion)
+# Calculate ROC curve and AUC
+y_probs = model.predict_proba(X_test)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_test, y_probs)
+roc_auc = auc(fpr, tpr)
+
+# Plot ROC curve
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()
+
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from imblearn.over_sampling import SMOTE
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+# Load your dataset
+# Replace 'your_dataset.csv' with the actual path to your dataset
+data = pd.read_csv('creditcard.csv')
+
+# Separate features (X) and target labels (y)
+X = data.drop(columns=['Class'])  # Assuming 'Class' is the target column
+y = data['Class']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Handling class imbalance using SMOTE (oversampling)
+smote = SMOTE(sampling_strategy=0.5)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+
+# Train a Random Forest classifier
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train_resampled, y_train_resampled)
+
+# Train an XGBoost classifier
+xgb_model = XGBClassifier(n_estimators=100, random_state=42)
+xgb_model.fit(X_train_resampled, y_train_resampled)
+
+# Make predictions on the test data for both models
+rf_y_pred = rf_model.predict(X_test)
+xgb_y_pred = xgb_model.predict(X_test)
+
+# Calculate evaluation metrics for Random Forest
+rf_accuracy = accuracy_score(y_test, rf_y_pred)
+rf_precision = precision_score(y_test, rf_y_pred)
+rf_recall = recall_score(y_test, rf_y_pred)
+rf_f1 = f1_score(y_test, rf_y_pred)
+rf_confusion = confusion_matrix(y_test, rf_y_pred)
+
+# Calculate evaluation metrics for XGBoost
+xgb_accuracy = accuracy_score(y_test, xgb_y_pred)
+xgb_precision = precision_score(y_test, xgb_y_pred)
+xgb_recall = recall_score(y_test, xgb_y_pred)
+xgb_f1 = f1_score(y_test, xgb_y_pred)
+xgb_confusion = confusion_matrix(y_test, xgb_y_pred)
+
+# Print evaluation metrics for Random Forest
+print("Random Forest Model Metrics:")
+print("Accuracy:", rf_accuracy)
+print("Precision:", rf_precision)
+print("Recall:", rf_recall)
+print("F1 Score:", rf_f1)
+print("Confusion Matrix:")
+print(rf_confusion)
+
+# Print evaluation metrics for XGBoost
+print("\nXGBoost Model Metrics:")
+print("Accuracy:", xgb_accuracy)
+print("Precision:", xgb_precision)
+print("Recall:", xgb_recall)
+print("F1 Score:", xgb_f1)
+print("Confusion Matrix:")
+print(xgb_confusion)
